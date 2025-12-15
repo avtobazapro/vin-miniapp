@@ -1,457 +1,80 @@
 <!doctype html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Авто в наличии</title>
-
-  <!-- Telegram Mini Apps SDK -->
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>VIN Decode</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
   <style>
-    :root {
-      --bg: #0b0b0c;
-      --card: #121214;
-      --text: #f4f4f5;
-      --muted: #a1a1aa;
-      --border: rgba(255,255,255,.08);
-      --btn: #1f2937;
-      --btn2: #111827;
-      --ok: #16a34a;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    header {
-      position: sticky;
-      top: 0;
-      background: linear-gradient(to bottom, rgba(11,11,12,.98), rgba(11,11,12,.8));
-      backdrop-filter: blur(10px);
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid var(--border);
-      z-index: 5;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 18px;
-      font-weight: 800;
-      letter-spacing: .2px;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    input[type="search"]{
-      width: 100%;
-      background: rgba(255,255,255,.06);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 12px 12px;
-      border-radius: 14px;
-      outline: none;
-      font-size: 14px;
-    }
-
-    .wrap {
-      padding: 12px 14px 80px;
-    }
-
-    .meta {
-      margin: 8px 0 0;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .grid { display: grid; gap: 12px; }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-
-    .top {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 12px;
-      align-items: start;
-    }
-
-    .imgbox {
-      width: 120px;
-      height: 88px;
-      border-radius: 14px;
-      overflow: hidden;
-      background: rgba(255,255,255,.06);
-      border: 1px solid var(--border);
-      position: relative;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .imgbox img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    .dots {
-      position: absolute;
-      bottom: 6px;
-      left: 6px;
-      display: flex;
-      gap: 4px;
-      padding: 4px 6px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.35);
-      border: 1px solid rgba(255,255,255,.12);
-    }
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,.35);
-    }
-    .dot.on { background: rgba(255,255,255,.9); }
-
-    .title {
-      font-weight: 800;
-      line-height: 1.2;
-      font-size: 15px;
-      margin: 0;
-    }
-
-    .sub {
-      margin-top: 6px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .price {
-      margin-top: 10px;
-      font-size: 18px;
-      font-weight: 900;
-    }
-
-    .actions {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    button {
-      border: 1px solid var(--border);
-      background: var(--btn);
-      color: var(--text);
-      padding: 12px 10px;
-      border-radius: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    button.secondary { background: var(--btn2); }
-    button.order { background: rgba(22,163,74,.18); border-color: rgba(22,163,74,.35); }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.04);
-      color: var(--muted);
-      margin-top: 10px;
-    }
-
-    .small {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 10px;
-    }
-
-    .error {
-      color: #fca5a5;
-      background: rgba(239,68,68,.12);
-      border: 1px solid rgba(239,68,68,.25);
-      padding: 12px;
-      border-radius: 14px;
-    }
+    body{font-family:system-ui;margin:16px}
+    input,button{width:100%;padding:12px;font-size:16px;margin:8px 0}
+    pre{white-space:pre-wrap;background:#f5f5f5;padding:12px;border-radius:10px}
+    .muted{opacity:.7;font-size:12px}
   </style>
 </head>
-
 <body>
-  <header>
-    <h1>Авто в наличии</h1>
-    <div class="row">
-      <input id="q" type="search" placeholder="Поиск: BMW, Kia, 2022, дизель…" />
-    </div>
-    <div id="meta" class="meta"></div>
-  </header>
+  <h3>Расшифровка VIN</h3>
+  <input id="vin" placeholder="VIN (17 символов)" maxlength="17" />
+  <button id="btn">Проверить</button>
+  <div class="muted">Источник: NHTSA vPIC</div>
+  <pre id="out">Результат появится здесь…</pre>
 
-  <div class="wrap">
-    <div id="app" class="grid">Загрузка…</div>
-  </div>
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-<script>
-  // ✅ ТВОЯ CSV-СЫЛКА (уже вставлена)
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT4mR7I8MzBr6K-_j2epXliQeucvbnlgD52C6lLOPn3gou8d9ywUrQdmcfyKwWEOXfFiU0bqguqABCQ/pub?gid=0&single=true&output=csv";
+    const out = document.getElementById('out');
+    const btn = document.getElementById('btn');
 
-  // ✅ КУДА ИДЁТ ЗАЯВКА
-  const ORDER_BOT = "abazaprosecbot"; // без @
+    const vinRe = /^[A-HJ-NPR-Z0-9]{17}$/; // без I,O,Q
 
-  // --- Telegram init (не обязателен, но приятно) ---
-  const tg = window.Telegram?.WebApp;
-  try {
-    tg?.ready();
-    tg?.expand();
-  } catch(e){}
+    function pick(results, name) {
+      const row = results.find(x => x && x.Variable === name && x.Value && x.Value !== "Not Applicable");
+      return row ? row.Value : null;
+    }
 
-  // --- Надёжный CSV парсер (поддерживает кавычки/запятые внутри) ---
-  function parseCSV(text) {
-    const rows = [];
-    let row = [];
-    let cur = "";
-    let inQuotes = false;
-
-    for (let i = 0; i < text.length; i++) {
-      const c = text[i];
-      const n = text[i + 1];
-
-      if (c === '"' && inQuotes && n === '"') { cur += '"'; i++; continue; }
-      if (c === '"') { inQuotes = !inQuotes; continue; }
-
-      if (!inQuotes && (c === '\n' || c === '\r')) {
-        if (c === '\r' && n === '\n') i++;
-        row.push(cur);
-        rows.push(row);
-        row = [];
-        cur = "";
-        continue;
+    btn.onclick = async () => {
+      const vin = document.getElementById('vin').value.trim().toUpperCase();
+      if (!vinRe.test(vin)) {
+        out.textContent = "VIN должен быть 17 символов (без I, O, Q).";
+        return;
       }
 
-      if (!inQuotes && c === ',') {
-        row.push(cur);
-        cur = "";
-        continue;
+      out.textContent = "Проверяю…";
+
+      try {
+        // Можно и DecodeVinValuesExtended — больше полей
+        const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinExtended/${vin}?format=json`;
+        const r = await fetch(url);
+        const j = await r.json();
+
+        const results = j.Results || [];
+        const data = {
+          vin,
+          make: pick(results, "Make"),
+          model: pick(results, "Model"),
+          year: pick(results, "Model Year"),
+          vehicleType: pick(results, "Vehicle Type"),
+          body: pick(results, "Body Class"),
+          engine: pick(results, "Engine Model") || pick(results, "Engine Displacement (L)"),
+          transmission: pick(results, "Transmission Style"),
+          plantCountry: pick(results, "Plant Country"),
+          plantCompany: pick(results, "Plant Company Name")
+        };
+
+        // + все заполненные поля списком
+        const fields = results
+          .filter(x => x && x.Value && x.Value !== "Not Applicable")
+          .map(x => ({ name: x.Variable, value: x.Value }));
+
+        out.textContent = JSON.stringify({ data, fields }, null, 2);
+      } catch (e) {
+        out.textContent =
+          "Ошибка запроса (часто это CORS в браузере).\n" +
+          "Решение: использовать маленький backend-прокси (Cloudflare Worker / Vercel Function).\n\n" +
+          String(e);
       }
-
-      cur += c;
-    }
-
-    // last cell
-    row.push(cur);
-    rows.push(row);
-
-    // trim empty last rows
-    while (rows.length && rows[rows.length - 1].every(x => (x || "").trim() === "")) rows.pop();
-    return rows;
-  }
-
-  function normalizeKey(s){
-    return (s || "").trim();
-  }
-
-  function splitPhotos(cell){
-    return (cell || "")
-      .split("|")
-      .map(s => s.trim())
-      .filter(Boolean);
-  }
-
-  function safeText(s){ return (s ?? "").toString().trim(); }
-
-  function openLink(url){
-    if (!url) return;
-    // Открывает ссылку внутри Telegram, если доступно
-    if (tg?.openLink) tg.openLink(url);
-    else window.open(url, "_blank");
-  }
-
-  function openTelegramLink(url){
-    if (!url) return;
-    // Для перехода в другой чат/бот
-    if (tg?.openTelegramLink) tg.openTelegramLink(url);
-    else window.location.href = url;
-  }
-
-  function makeStartPayload(carId){
-    // payload должен быть короткий: A-Z a-z 0-9 _ -
-    // поэтому используем только carId и заменим пробелы/плохие символы на _
-    const cleaned = safeText(carId).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 50);
-    return "car_" + cleaned;
-  }
-
-  function orderCar(car){
-    const id = safeText(car.id);
-    if (!id) {
-      alert("Не заполнен столбец id у этого авто. Добавь короткий id (например A001) в таблицу.");
-      return;
-    }
-    const payload = makeStartPayload(id);
-    const url = `https://t.me/${ORDER_BOT}?start=${payload}`;
-    openTelegramLink(url);
-  }
-
-  function renderDots(count, active){
-    if (count <= 1) return "";
-    const dots = Array.from({length: Math.min(count, 6)}, (_,i) =>
-      `<span class="dot ${i===active ? "on" : ""}"></span>`
-    ).join("");
-    return `<div class="dots">${dots}</div>`;
-  }
-
-  function cardTemplate(car, idx){
-    const photos = splitPhotos(car.photos);
-    const main = photos[0] || "";
-    const title = safeText(car.title);
-    const price = safeText(car.price);
-    const year = safeText(car.year);
-    const mileage = safeText(car.mileage);
-    const engine = safeText(car.engine);
-    const link = safeText(car.link);
-
-    const sub = [year, mileage, engine].filter(Boolean).join(" • ");
-    const hasLink = !!link;
-
-    return `
-      <div class="card" data-idx="${idx}">
-        <div class="top">
-          <div class="imgbox" data-img="${idx}">
-            ${main ? `<img src="${main}" alt="">` : ""}
-            ${renderDots(photos.length, 0)}
-          </div>
-          <div>
-            <div class="title">${title || "Без названия"}</div>
-            <div class="sub">${sub || ""}</div>
-            <div class="price">${price || ""}</div>
-            <div class="badge">ID: ${safeText(car.id) || "—"}</div>
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="secondary" ${hasLink ? "" : "disabled"} data-open="${idx}">
-            Открыть объявление
-          </button>
-          <button class="order" data-order="${idx}">
-            Заказать
-          </button>
-        </div>
-
-        <div class="small">Фото: можно нажимать на фото — будет листать.</div>
-      </div>
-    `;
-  }
-
-  let CARS = [];
-
-  function applyFilter(){
-    const q = document.getElementById("q").value.trim().toLowerCase();
-    const app = document.getElementById("app");
-
-    const filtered = CARS.filter(c => {
-      // показываем только in_stock (если статус пустой — считаем что in_stock)
-      const st = (c.status || "in_stock").toLowerCase().trim();
-      if (st && st !== "in_stock") return false;
-
-      if (!q) return true;
-      const hay = [
-        c.id, c.title, c.price, c.year, c.mileage, c.engine
-      ].map(x => (x || "").toString().toLowerCase()).join(" | ");
-      return hay.includes(q);
-    });
-
-    document.getElementById("meta").textContent = `Показано: ${filtered.length} (в наличии)`;
-
-    app.innerHTML = filtered.map((c, i) => cardTemplate(c, i)).join("");
-
-    // клики
-    app.querySelectorAll("[data-open]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const i = Number(btn.getAttribute("data-open"));
-        openLink(filtered[i]?.link);
-      });
-    });
-
-    app.querySelectorAll("[data-order]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const i = Number(btn.getAttribute("data-order"));
-        orderCar(filtered[i]);
-      });
-    });
-
-    // листание фото по клику
-    app.querySelectorAll("[data-img]").forEach(box => {
-      let cur = 0;
-      box.addEventListener("click", () => {
-        const i = Number(box.getAttribute("data-img"));
-        const car = filtered[i];
-        const photos = splitPhotos(car?.photos);
-        if (!photos.length) return;
-
-        cur = (cur + 1) % photos.length;
-        const img = box.querySelector("img");
-        if (img) img.src = photos[cur];
-
-        // обновить точки
-        const dotsWrap = box.querySelector(".dots");
-        if (dotsWrap) dotsWrap.innerHTML = Array.from({length: Math.min(photos.length, 6)}, (_,k) =>
-          `<span class="dot ${k===cur ? "on" : ""}"></span>`
-        ).join("");
-      });
-    });
-  }
-
-  async function main(){
-    const app = document.getElementById("app");
-    try {
-      const res = await fetch(CSV_URL, { cache: "no-store" });
-      const text = await res.text();
-      const rows = parseCSV(text);
-
-      if (!rows.length) throw new Error("CSV пустой");
-
-      const headers = rows[0].map(normalizeKey);
-      const data = rows.slice(1);
-
-      const list = data.map(cols => {
-        const obj = {};
-        headers.forEach((h, i) => obj[h] = (cols[i] ?? "").trim());
-        return obj;
-      });
-
-      CARS = list;
-
-      document.getElementById("q").addEventListener("input", applyFilter);
-      applyFilter();
-
-    } catch (e) {
-      console.error(e);
-      app.innerHTML = `<div class="error">
-        Не удалось загрузить таблицу.<br>
-        Проверь, что ссылка CSV открывается публично (инкогнито) и что лист опубликован как CSV.<br><br>
-        Детали: ${String(e.message || e)}
-      </div>`;
-    }
-  }
-
-  main();
-</script>
+    };
+  </script>
 </body>
 </html>
